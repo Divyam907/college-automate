@@ -771,13 +771,17 @@ def admin_register_student():
         del photos
         gc.collect()
 
-        try:
-            _append_embeddings(name)
-        except Exception as e:
-            flash(f'Student saved but embeddings failed: {e}', 'warning')
-            return redirect(url_for('admin_students'))
+        # Generate embeddings in background thread to avoid health check timeout
+        import threading
+        def _bg_embed(sname):
+            try:
+                _append_embeddings(sname)
+                print(f"[embed] Done for {sname}", flush=True)
+            except Exception as e:
+                print(f"[embed] Failed for {sname}: {e}", flush=True)
+        threading.Thread(target=_bg_embed, args=(name,), daemon=True).start()
 
-        flash(f'Student "{name}" registered successfully.', 'success')
+        flash(f'Student "{name}" registered successfully. Embeddings generating in background.', 'success')
         return redirect(url_for('admin_students'))
 
     # GET
