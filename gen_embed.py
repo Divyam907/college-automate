@@ -16,7 +16,7 @@ def get_embeddings(directory):
                 image_path = os.path.join(person_path, image_name)
                 if os.path.isfile(image_path):
                     try:
-                        embedding = DeepFace.represent(img_path=image_path, model_name='VGG-Face')[0]["embedding"]
+                        embedding = DeepFace.represent(img_path=image_path, model_name='Facenet512', detector_backend='opencv')[0]["embedding"]
                         embeddings.append(embedding)
                         names.append(person_name)
                     except Exception as e:

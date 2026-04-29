@@ -29,12 +29,33 @@ os.chdir(BASE_DIR)
 
 from config import DB_PARAMS, TWILIO_CONFIG, CONTINUOUS_ATTENDANCE, ENGAGEMENT_CONFIG, LIVENESS_CONFIG
 
-print("[startup] Loading AI models (this may take a minute)...", flush=True)
-from Attendance_update_db import process_group_image, process_group_image_with_subject
-import gen_embed
-from engagement import analyze_engagement
-from liveness import quick_liveness_check
-print("[startup] AI models loaded.", flush=True)
+# Lazy import heavy AI modules — only loaded when first needed
+_ai_loaded = False
+process_group_image = None
+process_group_image_with_subject = None
+gen_embed = None
+analyze_engagement = None
+quick_liveness_check = None
+
+def _load_ai_modules():
+    global _ai_loaded, process_group_image, process_group_image_with_subject
+    global gen_embed, analyze_engagement, quick_liveness_check
+    if _ai_loaded:
+        return
+    print("[runtime] Loading AI models...", flush=True)
+    from Attendance_update_db import process_group_image as _pgi, process_group_image_with_subject as _pgis
+    import gen_embed as _ge
+    from engagement import analyze_engagement as _ae
+    from liveness import quick_liveness_check as _qlc
+    process_group_image = _pgi
+    process_group_image_with_subject = _pgis
+    gen_embed = _ge
+    analyze_engagement = _ae
+    quick_liveness_check = _qlc
+    _ai_loaded = True
+    print("[runtime] AI models loaded.", flush=True)
+
+print("[startup] Core modules loaded.", flush=True)
 
 from whatsapp_alerts import WhatsAppAlerts, check_and_send_absence_alerts, send_daily_summary_to_all
 from continuous_attendance import init_continuous_attendance, get_continuous_attendance
@@ -331,6 +352,7 @@ def _save_b64_image(b64_str, path):
 
 
 def _regenerate_embeddings():
+    _load_ai_modules()
     embeddings, names = gen_embed.get_embeddings(DATASET_DIR)
     if embeddings:
         df = pd.DataFrame(embeddings)
@@ -913,6 +935,7 @@ def api_analyze_engagement():
         arr = np.frombuffer(img_data, dtype=np.uint8)
         img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
 
+        _load_ai_modules()
         engagement = analyze_engagement(img)
         return jsonify({
             'total_faces': engagement.total_faces,
@@ -951,6 +974,7 @@ def api_liveness_check():
         arr = np.frombuffer(img_data, dtype=np.uint8)
         img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
 
+        _load_ai_modules()
         result = quick_liveness_check(img)
         return jsonify({
             'is_live': result.is_live,
@@ -1232,6 +1256,7 @@ def mark_attendance():
             _save_b64_image(data['photo'], img_path)
 
             # ── Liveness Detection ────────────────────────────────────────
+            _load_ai_modules()
             liveness_result = None
             if LIVENESS_CONFIG.get('enabled'):
                 img_for_liveness = cv2.imread(img_path)
@@ -1546,6 +1571,7 @@ def college_engagement_capture():
         section_id, period_id = sess
 
         # ── Engagement analysis (class-level) ─────────────────────────────
+        _load_ai_modules()
         engagement = analyze_engagement(img)
 
         # ── Face recognition: identify who each face is ───────────────────

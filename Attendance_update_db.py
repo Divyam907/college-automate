@@ -17,10 +17,10 @@ def identify_persons_in_group_photo(image_path, embeddings, names, is_path=True)
     try:
         if is_path:
             img = cv2.imread(image_path)
-            faces = DeepFace.extract_faces(img_path=image_path, detector_backend='mtcnn')
+            faces = DeepFace.extract_faces(img_path=image_path, detector_backend='opencv')
         else:
             img = image_path  # already a numpy array
-            faces = DeepFace.extract_faces(img_path=img, detector_backend='mtcnn', enforce_detection=False)
+            faces = DeepFace.extract_faces(img_path=img, detector_backend='opencv', enforce_detection=False)
 
         identified_persons = []
 
@@ -28,15 +28,15 @@ def identify_persons_in_group_photo(image_path, embeddings, names, is_path=True)
             facial_area = face['facial_area']
             face_img = img[facial_area['y']:facial_area['y']+facial_area['h'], 
                            facial_area['x']:facial_area['x']+facial_area['w']]
-            face_embedding = DeepFace.represent(img_path=face_img, model_name='VGG-Face', enforce_detection=False)[0]["embedding"]
+            face_embedding = DeepFace.represent(img_path=face_img, model_name='Facenet512', enforce_detection=False)[0]["embedding"]
             
             distances = np.linalg.norm(embeddings - face_embedding, axis=1)
             best_match_idx = np.argmin(distances)
             best_match_distance = distances[best_match_idx]
             confidence_score = 1 / (1 + best_match_distance)
 
-            # Only accept matches below distance threshold (VGG-Face: ~0.6 is a good cut-off)
-            THRESHOLD = 0.9
+            # Facenet512 Euclidean threshold (~23 is the DeepFace default)
+            THRESHOLD = 23.0
             if best_match_distance > THRESHOLD:
                 continue  # face detected but doesn't match any registered student
 
