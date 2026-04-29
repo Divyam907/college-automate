@@ -8,7 +8,7 @@ echo "=== Upgrading pip ==="
 pip install --upgrade pip
 
 echo "=== Installing Python packages ==="
-pip install -r requirements_py313.txt
+pip install -r requirements_render.txt
 
 echo "=== Creating directories ==="
 mkdir -p dataset images
