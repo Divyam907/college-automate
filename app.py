@@ -4,9 +4,17 @@ import json
 import re
 import shutil
 import datetime as dt
+import logging
+import sys
 
+# Suppress TensorFlow/CUDA noise
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+
+print("[startup] Loading core libraries...", flush=True)
 
 import cv2
 import numpy as np
@@ -20,10 +28,14 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASE_DIR)
 
 from config import DB_PARAMS, TWILIO_CONFIG, CONTINUOUS_ATTENDANCE, ENGAGEMENT_CONFIG, LIVENESS_CONFIG
+
+print("[startup] Loading AI models (this may take a minute)...", flush=True)
 from Attendance_update_db import process_group_image, process_group_image_with_subject
 import gen_embed
 from engagement import analyze_engagement
 from liveness import quick_liveness_check
+print("[startup] AI models loaded.", flush=True)
+
 from whatsapp_alerts import WhatsAppAlerts, check_and_send_absence_alerts, send_daily_summary_to_all
 from continuous_attendance import init_continuous_attendance, get_continuous_attendance
 
