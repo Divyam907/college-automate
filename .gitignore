@@ -1,12 +1,73 @@
+# Python
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.so
 venv/
+.venv/
+env/
 .env
+.env.*
+!.env.example
 *.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+pip-log.txt
+pip-delete-this-directory.txt
+instance/
+
+# Build outputs
 dist/
 build/
-images/*.jpg
-images/*.png
-*.csv
-!embeddings.csv
+frontend/dist/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Dataset / Images (large files, not tracked)
+backend/images/*.jpg
+backend/images/*.png
+backend/images/*.jpeg
+backend/dataset/*/
+
+# Embeddings and ML model files (generated, large)
+backend/embeddings.csv
+*.pkl
+*.pickle
+*.npy
+*.h5
+*.pt
+*.pth
+
+# Generated reports
+*.xlsx
+*.xls
+*.pdf
+backend/reports/
+
+# Logs
+*.log
+logs/
+
+# Temp / misc
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/

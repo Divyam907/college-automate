@@ -1,27 +1,3 @@
-databases:
-  - name: autoattendance-db
-    plan: free
-    databaseName: autoattendance
-    user: autoattendance_user
-
-services:
-  - type: web
-    name: college-attendance
-    runtime: python
-    plan: free
-    buildCommand: ./build.sh
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 300 --workers 1 --preload
-    healthCheckPath: /login
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: autoattendance-db
-          property: connectionString
-      - key: SECRET_KEY
-        generateValue: true
-      - key: PYTHON_VERSION
-        value: 3.11.9
-      - key: EMAIL_USER
-        value: divyamverma90@gmail.com
-      - key: EMAIL_PASSWORD
-        value: qoor heke libw pfqy
+# This file is no longer used.
+# Deploy backend and frontend separately from their own folders/repos.
+# See backend/render.yaml and frontend/render.yaml
